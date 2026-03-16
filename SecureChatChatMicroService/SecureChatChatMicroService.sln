@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{798BB9D2-FD40-48FB-8A21-4CAC593FAA9F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{0BE5CE87-E259-40B4-B27E-93122B8D715A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{BA8DE2D6-6CB8-43E6-9E46-101BF7CF29C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{06FEB69A-E554-44F4-88A4-5A76CA5FF0FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{32764B1D-D7D1-4F8F-942C-1DD63D738321}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureChatChatMicroService.Application", "SecureChatChatMicroService.Application\SecureChatChatMicroService.Application.csproj", "{CCF7635D-0008-4852-A61C-39AD87599A00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureChatChatMicroService.Domain", "SecureChatChatMicroService.Domain\SecureChatChatMicroService.Domain.csproj", "{B50E4B0A-15AB-4368-B0F8-252792EE36AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureChatChatMicroService.Infrastructure", "SecureChatChatMicroService.Infrastructure\SecureChatChatMicroService.Infrastructure.csproj", "{07874858-00EE-48DD-8B8E-30318DFA6BEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureChatChatMicroService.API", "SecureChatChatMicroService.API\SecureChatChatMicroService.API.csproj", "{B5D94A74-D285-44C8-9F83-C89A4602DAC9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0BE5CE87-E259-40B4-B27E-93122B8D715A} = {798BB9D2-FD40-48FB-8A21-4CAC593FAA9F}
+		{BA8DE2D6-6CB8-43E6-9E46-101BF7CF29C4} = {798BB9D2-FD40-48FB-8A21-4CAC593FAA9F}
+		{06FEB69A-E554-44F4-88A4-5A76CA5FF0FC} = {798BB9D2-FD40-48FB-8A21-4CAC593FAA9F}
+		{32764B1D-D7D1-4F8F-942C-1DD63D738321} = {798BB9D2-FD40-48FB-8A21-4CAC593FAA9F}
+		{CCF7635D-0008-4852-A61C-39AD87599A00} = {0BE5CE87-E259-40B4-B27E-93122B8D715A}
+		{B50E4B0A-15AB-4368-B0F8-252792EE36AE} = {BA8DE2D6-6CB8-43E6-9E46-101BF7CF29C4}
+		{07874858-00EE-48DD-8B8E-30318DFA6BEE} = {06FEB69A-E554-44F4-88A4-5A76CA5FF0FC}
+		{B5D94A74-D285-44C8-9F83-C89A4602DAC9} = {32764B1D-D7D1-4F8F-942C-1DD63D738321}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCF7635D-0008-4852-A61C-39AD87599A00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCF7635D-0008-4852-A61C-39AD87599A00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCF7635D-0008-4852-A61C-39AD87599A00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCF7635D-0008-4852-A61C-39AD87599A00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B50E4B0A-15AB-4368-B0F8-252792EE36AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B50E4B0A-15AB-4368-B0F8-252792EE36AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B50E4B0A-15AB-4368-B0F8-252792EE36AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B50E4B0A-15AB-4368-B0F8-252792EE36AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07874858-00EE-48DD-8B8E-30318DFA6BEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07874858-00EE-48DD-8B8E-30318DFA6BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07874858-00EE-48DD-8B8E-30318DFA6BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07874858-00EE-48DD-8B8E-30318DFA6BEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5D94A74-D285-44C8-9F83-C89A4602DAC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D94A74-D285-44C8-9F83-C89A4602DAC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D94A74-D285-44C8-9F83-C89A4602DAC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D94A74-D285-44C8-9F83-C89A4602DAC9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

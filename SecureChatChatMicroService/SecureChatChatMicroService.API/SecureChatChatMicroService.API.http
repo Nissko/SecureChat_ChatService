@@ -1,0 +1,6 @@
+@SecureChatChatMicroService.API_HostAddress = http://localhost:5277
+
+GET {{SecureChatChatMicroService.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
