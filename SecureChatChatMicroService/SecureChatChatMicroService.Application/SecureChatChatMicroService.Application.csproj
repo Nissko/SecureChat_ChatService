@@ -15,12 +15,20 @@
     <ItemGroup>
       <Folder Include="CommandHandler\" />
       <Folder Include="Command\" />
+      <Folder Include="Common\Interfaces\IRepositories\" />
     </ItemGroup>
     
     <ItemGroup>
       <Reference Include="NodaTime">
         <HintPath>..\..\..\..\.nuget\packages\nodatime\3.3.0\lib\net8.0\NodaTime.dll</HintPath>
       </Reference>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Dtos\Dtos.csproj" />
+      <ProjectReference Include="..\Protos\Protos.csproj" />
+      <ProjectReference Include="..\Requests\Requests.csproj" />
+      <ProjectReference Include="..\SecureChatChatMicroService.Domain\SecureChatChatMicroService.Domain.csproj" />
     </ItemGroup>
 
 </Project>

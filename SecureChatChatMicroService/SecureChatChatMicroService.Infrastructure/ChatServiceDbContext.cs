@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using SecureChatUserMicroService.Application.Common.Interfaces;
+using SecureChatChatMicroService.Application.Common.Interfaces;
+using SecureChatChatMicroService.Domain.Entities;
+using SecureChatChatMicroService.Infrastructure.Configurations;
 
-namespace SecureChatChatMicroService.Infrastructure;
-
-public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
+namespace SecureChatChatMicroService.Infrastructure
+{
+    public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
     {
         private const string DefaultSchema = "ChatMicroService";
 
@@ -11,8 +13,13 @@ public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
             : base(options)
         {
         }
-        
-        //public DbSet<ChatEntity> Chat { get; set; }
+
+        public DbSet<UserEntity> User { get; set; }
+        public DbSet<GroupEntity> Group { get; set; }
+        public DbSet<ChatGroupEntity> ChatGroup { get; set; }
+        public DbSet<ChatEntity> Chat { get; set; }
+        public DbSet<MessageEntity> Message { get; set; }
+        public DbSet<ChatParticipantsEntity> ChatParticipants { get; set; }
 
         public void Migrate()
         {
@@ -23,9 +30,14 @@ public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
         {
             modelBuilder.HasDefaultSchema(DefaultSchema);
 
-            #region user
+            #region chat
 
-            //modelBuilder.ApplyConfiguration(new ChatConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new GroupConfiguration());
+            modelBuilder.ApplyConfiguration(new ChatGroupConfiguration());
+            modelBuilder.ApplyConfiguration(new ChatConfiguration());
+            modelBuilder.ApplyConfiguration(new MessageConfiguration());
+            modelBuilder.ApplyConfiguration(new ChatParticipantsConfiguration());
 
             #endregion
 
@@ -39,8 +51,8 @@ public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseNpgsql("Server=109.205.58.47;User Id=persProjectUser;Password=7FEpX_wl6g;Port=5432;Database=testDb;", npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
-            optionsBuilder.UseNpgsql("Server=localhost;User Id=postgres;Password=0000;Port=5432;Database=postgres;", npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
+            optionsBuilder.UseNpgsql("Server=radiomgn.ru;User Id=nikita;Password=qwertyaib12345678;Port=4444;Database=chat;",
+                npgsqlOptions => { npgsqlOptions.UseNodaTime(); }).UseLazyLoadingProxies();
         }
 
         private static DbContextOptions<T> ChangeOptionsType<T>(DbContextOptions options) where T : DbContext
@@ -49,3 +61,4 @@ public sealed class ChatServiceDbContext : DbContext, IChatServiceDbContext
                 .Options;
         }
     }
+}

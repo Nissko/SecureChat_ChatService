@@ -22,13 +22,12 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="Configurations\" />
-      <Folder Include="Persistence\" />
-      <Folder Include="Repositories\" />
+      <Folder Include="Persistence\Migrations\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SecureChatChatMicroService.Application\SecureChatChatMicroService.Application.csproj" />
+      <ProjectReference Include="..\SecureChatChatMicroService.Domain\SecureChatChatMicroService.Domain.csproj" />
     </ItemGroup>
 
 </Project>

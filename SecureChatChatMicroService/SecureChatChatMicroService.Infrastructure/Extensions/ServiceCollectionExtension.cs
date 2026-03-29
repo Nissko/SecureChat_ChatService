@@ -3,9 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SecureChatChatMicroService.Application.Extensions;
 
-namespace SecureChatChatMicroService.Infrastructure.Extensions;
-
-public static class ServiceCollectionExtension
+namespace SecureChatChatMicroService.Infrastructure.Extensions
+{
+    public static class ServiceCollectionExtension
     {
         public static IServiceCollection AddCollectionInfrastructure(this IServiceCollection services,
             IConfiguration configuration)
@@ -17,7 +17,7 @@ public static class ServiceCollectionExtension
                 options.UseNpgsql(configuration.GetConnectionString("PostgreSqlDatabase")));
 
             services.AddScoped<ChatServiceDbContext>(provider => provider.GetService<ChatServiceDbContext>()
-                                                              ?? throw new InvalidOperationException());
+                                                                 ?? throw new InvalidOperationException());
 
             //TODO: Регистрация  Mediator(-a)
             
@@ -29,3 +29,4 @@ public static class ServiceCollectionExtension
             return services;
         }
     }
+}

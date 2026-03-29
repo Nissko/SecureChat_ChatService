@@ -2,18 +2,19 @@ using System.Reflection;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SecureChatChatMicroService.Application.Extensions;
-
-public static class DependecyInjection
+namespace SecureChatChatMicroService.Application.Extensions
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static class DependecyInjection
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
+        public static IServiceCollection AddApplication(this IServiceCollection services)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
             
-        // Регистрируем MediatR
-        services.AddMediatR(Assembly.GetExecutingAssembly());
+            // Регистрируем MediatR
+            services.AddMediatR(Assembly.GetExecutingAssembly());
 
-        return services;
+            return services;
+        }
     }
 }
