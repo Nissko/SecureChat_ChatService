@@ -27,7 +27,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -36,11 +36,11 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var user = await _context.User.FindAsync([id]);
-                return user == null ? throw new Exception("User not found") : GetUserDto(user);
+                return user == null ? throw new("User not found") : GetUserDto(user);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -50,7 +50,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             {
                 //TODO: подумать над тем, как мы будем создавать чаты
                 var newUser = new UserEntity(request.UserProfileId, false);
-                newUser.Groups.Add(new GroupEntity("Все чаты", newUser.Id));
+                newUser.Groups.Add(new("Все чаты", newUser.Id));
                 
                 _context.User.Add(newUser);
                 
@@ -59,7 +59,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -68,8 +68,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var user = await _context.User.FindAsync([request.Id])
-                           ?? throw new Exception("User not found");
-                user.Update(request.UserProfileId, request.IsDeleted);
+                           ?? throw new("User not found");
+                user.Update(request.IsDeleted);
 
                 _context.User.Update(user);
                 await SaveChanges();
@@ -78,7 +78,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -87,9 +87,9 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var user = await _context.User.FindAsync([id])
-                           ?? throw new Exception("User not found");
-                if (user.IsDeleted) throw new Exception("User already is deleted");
-                user.Update(null, false);
+                           ?? throw new("User not found");
+                if (user.IsDeleted) throw new("User already is deleted");
+                user.Update(false);
 
                 _context.User.Update(user);
                 await SaveChanges();
@@ -98,13 +98,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
         private static UserDto GetUserDto(UserEntity e)
         {
-            return new UserDto(
+            return new(
                 e.Id,
                 e.UserProfileId,
                 e.IsDeleted,

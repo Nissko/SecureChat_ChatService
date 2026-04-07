@@ -1,14 +1,27 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using SecureChatChatMicroService.Application.Extensions;
 using SecureChatChatMicroService.Application.GrpcServices;
 using SecureChatChatMicroService.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc(options =>
+    {
+        options.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    })
+    .AddJsonTranscoding();
+
+builder.WebHost.ConfigureKestrel(options =>
 {
-    options.EnableDetailedErrors = builder.Environment.IsDevelopment();
-})
-.AddJsonTranscoding();
+    options.ListenLocalhost(5555, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+
+    options.ListenLocalhost(5277, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+    });
+});
 
 builder.Services
     .AddCollectionInfrastructure(builder.Configuration)
@@ -17,12 +30,12 @@ builder.Services
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    options.SwaggerDoc("v1", new()
     {
-        Title = "ChatMicroservice User API",
+        Title = "ChatMicroservice Chat API",
         Version = "v1",
         Description = "gRPC-сервис чата",
-        Contact = new OpenApiContact
+        Contact = new()
         {
             Name = "Nikita",
             Email = "mail@nikita-skibko.ru"
@@ -43,7 +56,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "User API v1");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat API v1");
         options.RoutePrefix = "swagger";
         options.DisplayRequestDuration();
         options.EnableTryItOutByDefault();
@@ -52,7 +65,10 @@ if (app.Environment.IsDevelopment())
 
 // Регистрация gRPC-сервисов
 app.MapGrpcService<UserGrpcService>().EnableGrpcWeb();
-// app.MapGrpcService<UserProfileGrpcService>().EnableGrpcWeb();
-// app.MapGrpcService<BlockUserGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<GroupGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<ChatGroupGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<ChatGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<ChatParticipantsGrpcService>().EnableGrpcWeb();
+app.MapGrpcService<MessageGrpcService>().EnableGrpcWeb();
 
 app.Run();

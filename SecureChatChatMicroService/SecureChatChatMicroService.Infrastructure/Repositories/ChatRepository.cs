@@ -29,7 +29,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
                 return GetChatDto(chats);
             }
             catch(Exception ex){
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -37,11 +37,11 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([id]) ?? throw new Exception("Chat not found");
+                var chat = await _context.Chat.FindAsync([id]) ?? throw new("Chat not found");
                 return GetChatDto(chat);
             }
             catch(Exception ex){
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -52,14 +52,14 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
                 var chatTypeEnum = ChatTypeEnum.FromId(request.Type);
                 var newChat = new ChatEntity(SystemClock.Instance.GetCurrentInstant(), 0, false, false, false,
                     chatTypeEnum.Id, request.OwnerId);
-                newChat.ChatGroups.Add(new ChatGroupEntity(newChat.Id, request.ChatGroupId));
+                newChat.ChatGroups.Add(new(newChat.Id, request.ChatGroupId));
                 _context.Chat.Add(newChat);
                 await SaveChanges();
                 
                 return newChat.Id;
             }
             catch(Exception ex){
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -67,11 +67,11 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([request.Id]) ?? throw new Exception("Chat not found");
+                var chat = await _context.Chat.FindAsync([request.Id]) ?? throw new("Chat not found");
                 chat.Update(request.LastMessageTime, request.CountUnreadMessages, request.IsPint, request.IsMute,
                     request.Type, null);
                 var chatGroup = chat.ChatGroups.FirstOrDefault(x => x.ChatId == chat.Id) ??
-                                throw new Exception("ChatGroup not found");
+                                throw new("ChatGroup not found");
                 chatGroup.Update(null, request.GroupId);
                 
                 _context.Chat.Update(chat);
@@ -81,7 +81,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
                 return GetChatDto(chat);
             }
             catch(Exception ex){
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -89,8 +89,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([id]) ?? throw new Exception("Chat not found");
-                if (chat.IsDeleted) throw new Exception("Chat already is deleted");
+                var chat = await _context.Chat.FindAsync([id]) ?? throw new("Chat not found");
+                if (chat.IsDeleted) throw new("Chat already is deleted");
 
                 chat.Update(null, null, null, null, null, true);
                 _context.Chat.Update(chat);
@@ -99,13 +99,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
                 return true;
             }
             catch(Exception ex){
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
         private static ChatDto GetChatDto(ChatEntity e)
         {
-            return new ChatDto(
+            return new(
                 e.Id,
                 e.LastMessageTime,
                 e.CountUnreadMessages,

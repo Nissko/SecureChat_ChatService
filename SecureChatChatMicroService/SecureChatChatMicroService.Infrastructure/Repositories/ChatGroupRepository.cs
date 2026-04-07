@@ -24,7 +24,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
 
         public async Task<ChatGroupDto> FromId(Guid id)
         {
-            var chatGroup = await _context.ChatGroup.FindAsync([id]) ?? throw new Exception("Chat group not found");
+            var chatGroup = await _context.ChatGroup.FindAsync([id]) ?? throw new("Chat group not found");
             return ChatGroupDto(chatGroup);
         }
 
@@ -41,7 +41,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         public async Task<ChatGroupDto> Update(UpdateChatGroupRequest request)
         {
             var chatGroup = await _context.ChatGroup.FindAsync([request.Id]) ??
-                            throw new Exception("Chat group not found");
+                            throw new("Chat group not found");
             chatGroup.Update(request.ChatId, request.GroupId);
             
             _context.ChatGroup.Update(chatGroup);
@@ -49,16 +49,10 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             
             return ChatGroupDto(chatGroup);
         }
-
-        public async Task<bool> Delete(Guid id)
-        {
-            //TODO: подумать, а нужно ли вообще удаление?
-            throw new NotImplementedException();
-        }
         
         private static ChatGroupDto ChatGroupDto(ChatGroupEntity e)
         {
-            return new ChatGroupDto(
+            return new(
                 e.Id,
                 e.ChatId,
                 e.GroupId

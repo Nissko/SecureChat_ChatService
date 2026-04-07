@@ -24,10 +24,5 @@ namespace SecureChatChatMicroService.Application.Common.Interfaces.IRepositories
         /// Обновление
         /// </summary>
         Task<ChatGroupDto> Update(UpdateChatGroupRequest request);
-
-        /// <summary>
-        /// Удаление
-        /// </summary>
-        Task<bool> Delete(Guid id);
     }
 }

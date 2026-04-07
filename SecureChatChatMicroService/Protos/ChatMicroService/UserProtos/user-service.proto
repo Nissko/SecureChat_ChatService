@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "Common/chat_microservice_commons.proto";
+
+option csharp_namespace = "UserService.Proto";
+
+// Сервис для управления пользователями
+service UserGrpcService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/grpc/user/add"
+      body: "*"
+    };
+  }
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {
+    option (google.api.http) = {get: "/grpc/users"};
+  }
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {get: "/grpc/user/{Id}"};
+  }
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/grpc/user/{Id}"
+      body: "*"
+    };
+  }
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {delete: "/grpc/user/{Id}"};
+  }
+}
+
+/*REQUEST*/
+// Запрос на получение пользователей
+message GetUsersRequest{}
+
+// Запрос на получение пользователя
+message GetUserRequest{
+  string Id = 1;
+}
+
+// Запрос на создание пользователя
+message CreateUserRequest{
+  // Id профиля пользователя
+  string UserProfileId = 1;
+}
+
+// Запрос на обновление пользователя
+message UpdateUserRequest{
+  string Id = 1;
+  optional bool IsDeleted = 2;
+}
+
+// Запрос на удаление пользователя
+message DeleteUserRequest{
+  string Id = 1;
+}
+
+/*RESPONSE*/
+// Ответ на получение пользователей
+message GetUsersResponse {
+  // Ответ
+  bool Success = 1;
+  // Пользователи
+  repeated common.UserInfo Users = 2;
+}
+
+// Ответ на получение пользователя
+message GetUserResponse {
+  // Ответ
+  bool Success = 1;
+  // Пользователь
+  common.UserInfo Users = 2;
+}
+
+// Ответ на создание пользователя
+message CreateUserResponse {
+  // Ответ
+  bool Success = 1;
+  // Id записи
+  string Id = 2;
+}
+
+// Ответ на обновление пользователя
+message UpdateUserResponse {
+  // Ответ
+  bool Success = 1;
+  // Id записи
+  common.UserInfo UpdateUser = 2;
+}
+
+// Ответ на удаление пользователя
+message DeleteUserResponse {
+  // Ответ
+  bool Success = 1;
+}

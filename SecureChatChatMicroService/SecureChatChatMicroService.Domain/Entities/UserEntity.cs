@@ -35,9 +35,8 @@ namespace SecureChatChatMicroService.Domain.Entities
         public virtual ICollection<ChatParticipantsEntity> ChatParticipants { get; private set; }
         public virtual ICollection<MessageEntity> Messages { get; private set; }
 
-        public void Update(Guid? userProfileId, bool? isDeleted)
+        public void Update(bool? isDeleted)
         {
-            UserProfileId = userProfileId ?? UserProfileId;
             IsDeleted = isDeleted ?? IsDeleted;
         }
     }

@@ -1,10 +1,13 @@
-using System.Text.RegularExpressions;
 using SecureChatChatMicroService.Domain.Common;
 
 namespace SecureChatChatMicroService.Domain.Entities
 {
     public class ChatGroupEntity : Entity
     {
+        public ChatGroupEntity()
+        {
+        }
+
         public ChatGroupEntity(Guid chatId, Guid groupId)
         {
             ChatId = chatId;
@@ -15,14 +18,16 @@ namespace SecureChatChatMicroService.Domain.Entities
         /// Ид чата
         /// </summary>
         public Guid ChatId { get; private set; }
+
         public virtual ChatEntity Chat { get; private set; }
-    
+
         /// <summary>
         /// Ид группы
         /// </summary>
         public Guid GroupId { get; private set; }
-        public virtual Group Group { get; private set; }
-        
+
+        public virtual GroupEntity Group { get; private set; }
+
         public void SetDefaultGroup(Guid defaultGroupId)
         {
             GroupId = defaultGroupId;

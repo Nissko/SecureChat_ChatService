@@ -38,6 +38,8 @@ namespace SecureChatChatMicroService.Infrastructure
             modelBuilder.ApplyConfiguration(new ChatConfiguration());
             modelBuilder.ApplyConfiguration(new MessageConfiguration());
             modelBuilder.ApplyConfiguration(new ChatParticipantsConfiguration());
+            modelBuilder.ApplyConfiguration(new ChatTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new TypeOfMessageConfiguration());
 
             #endregion
 

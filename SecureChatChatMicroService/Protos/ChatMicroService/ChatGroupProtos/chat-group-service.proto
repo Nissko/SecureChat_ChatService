@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "Common/chat_microservice_commons.proto";
+import "google/api/annotations.proto";
+
+option csharp_namespace = "ChatGroupService.Proto";
+
+// 
+service ChatGroupGrpcService {
+  rpc CreateChatGroup(CreateChatGroupRequest) returns (CreateChatGroupResponse) {
+    option (google.api.http) = {
+      post: "/grpc/chat-group/add"
+      body: "*"
+    };
+  }
+  rpc GetChatGroups(GetChatGroupsRequest) returns (GetChatGroupsResponse) {
+    option (google.api.http) = {get: "/grpc/chat-groups"};
+  }
+  rpc GetChatGroup(GetChatGroupRequest) returns (GetChatGroupResponse) {
+    option (google.api.http) = {get: "/grpc/chat-group/{Id}"};
+  }
+  rpc UpdateChatGroup(UpdateChatGroupRequest) returns (UpdateChatGroupResponse) {
+    option (google.api.http) = {
+      put: "/grpc/chat-group/{Id}"
+      body: "*"
+    };
+  }
+}
+
+/*REQUEST*/
+// 
+message GetChatGroupsRequest{}
+
+// 
+message GetChatGroupRequest{
+  string Id = 1;
+}
+
+// 
+message CreateChatGroupRequest{
+  // 
+  string ChatId = 1;
+  string GroupId = 2;
+}
+
+// 
+message UpdateChatGroupRequest{
+  string Id = 1;
+  optional string ChatId = 2;
+  optional string GroupId = 3;
+}
+
+/*RESPONSE*/
+// 
+message GetChatGroupsResponse {
+  // 
+  bool Success = 1;
+  // 
+  repeated common.ChatGroupInfo ChatGroups = 2;
+}
+
+// 
+message GetChatGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatGroupInfo ChatGroups = 2;
+}
+
+// 
+message CreateChatGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  string Id = 2;
+}
+
+// 
+message UpdateChatGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatGroupInfo UpdateChatGroup = 2;
+}

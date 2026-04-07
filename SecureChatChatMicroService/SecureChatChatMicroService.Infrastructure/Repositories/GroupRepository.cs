@@ -27,7 +27,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -36,11 +36,11 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var group = await _context.Group.FindAsync([id]);
-                return group == null ? throw new Exception("Group not found") : GetGroupDto(group);
+                return group == null ? throw new("Group not found") : GetGroupDto(group);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -48,7 +48,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var user = await _context.User.FindAsync([request.UserId]) ?? throw new Exception("User not found");
+                var user = await _context.User.FindAsync([request.UserId]) ?? throw new("User not found");
                 var newGroup = new GroupEntity(request.Name, user.Id);
                 
                 _context.Group.Add(newGroup);
@@ -58,7 +58,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -66,8 +66,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var group = await _context.Group.FindAsync([request.Id]) ?? throw new Exception("Group not found");
-                if (request.Name == DefaultGroupName) throw new Exception("Name cannot match the default one");
+                var group = await _context.Group.FindAsync([request.Id]) ?? throw new("Group not found");
+                if (request.Name == DefaultGroupName) throw new("Name cannot match the default one");
                 group.Update(request.Name, request.UserId);
                 
                 _context.Group.Attach(group);
@@ -77,7 +77,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -85,12 +85,12 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var group = await _context.Group.FindAsync([id]) ?? throw new Exception("Group not found");
+                var group = await _context.Group.FindAsync([id]) ?? throw new("Group not found");
                 var defaultGroup = group.User.Groups.FirstOrDefault(x => x.Name == DefaultGroupName) ??
-                                   throw new Exception("Default group not found");
+                                   throw new("Default group not found");
                 if (group.Id == defaultGroup.Id || group.Name == DefaultGroupName)
                 {
-                    throw new Exception("Default group cannot be deleted");
+                    throw new("Default group cannot be deleted");
                 }
                 
                 // Переносим все чаты из кастомной группы в группу по умолчанию
@@ -108,13 +108,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
         private static GroupDto GetGroupDto(GroupEntity e)
         {
-            return new GroupDto(
+            return new(
                 e.Id,
                 e.Name,
                 e.UserId,

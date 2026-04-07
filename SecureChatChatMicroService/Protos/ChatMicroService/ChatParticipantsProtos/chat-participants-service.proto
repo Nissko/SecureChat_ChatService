@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "Common/chat_microservice_commons.proto";
+
+option csharp_namespace = "ChatParticipantsService.Proto";
+
+// 
+service ChatParticipantsGrpcService {
+  rpc CreateChatParticipants(CreateChatParticipantsRequest) returns (CreateChatParticipantsResponse) {
+    option (google.api.http) = {
+      post: "/grpc/chat-participant/add"
+      body: "*"
+    };
+  }
+  rpc GetChatParticipants(GetChatParticipantsRequest) returns (GetChatParticipantsResponse) {
+    option (google.api.http) = {get: "/grpc/chat-participants"};
+  }
+  rpc GetChatParticipant(GetChatParticipantRequest) returns (GetChatParticipantResponse) {
+    option (google.api.http) = {get: "/grpc/chat-participant/{Id}"};
+  }
+  rpc UpdateChatParticipants(UpdateChatParticipantsRequest) returns (UpdateChatParticipantsResponse) {
+    option (google.api.http) = {
+      put: "/grpc/chat-participant/{Id}"
+      body: "*"
+    };
+  }
+  rpc DeleteChatParticipants(DeleteChatParticipantsRequest) returns (DeleteChatParticipantsResponse) {
+    option (google.api.http) = {delete: "/grpc/chat-participant/{Id}"};
+  }
+}
+
+/*REQUEST*/
+// 
+message GetChatParticipantsRequest{}
+
+// 
+message GetChatParticipantRequest{
+  string Id = 1;
+}
+
+// 
+message CreateChatParticipantsRequest{
+  // 
+  string ChatId = 1;
+  string UserId = 2;
+}
+
+// 
+message UpdateChatParticipantsRequest{
+  string Id = 1;
+  optional google.protobuf.Timestamp ExitTime = 2;
+}
+
+// 
+message DeleteChatParticipantsRequest{
+  string Id = 1;
+}
+
+/*RESPONSE*/
+// 
+message GetChatParticipantsResponse {
+  // 
+  bool Success = 1;
+  // 
+  repeated common.ChatParticipantsInfo ChatParticipants = 2;
+}
+
+// 
+message GetChatParticipantResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatParticipantsInfo ChatParticipants = 2;
+}
+
+// 
+message CreateChatParticipantsResponse {
+  // 
+  bool Success = 1;
+  // 
+  string Id = 2;
+}
+
+// 
+message UpdateChatParticipantsResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatParticipantsInfo UpdateChatParticipants = 2;
+}
+
+// 
+message DeleteChatParticipantsResponse {
+  // 
+  bool Success = 1;
+}

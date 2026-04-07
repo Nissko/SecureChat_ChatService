@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "Common/chat_microservice_commons.proto";
+
+option csharp_namespace = "GroupService.Proto";
+
+// 
+service GroupGrpcService {
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {
+    option (google.api.http) = {
+      post: "/grpc/group/add"
+      body: "*"
+    };
+  }
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse) {
+    option (google.api.http) = {get: "/grpc/groups"};
+  }
+  rpc GetGroup(GetGroupRequest) returns (GetGroupResponse) {
+    option (google.api.http) = {get: "/grpc/group/{Id}"};
+  }
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse) {
+    option (google.api.http) = {
+      put: "/grpc/group/{Id}"
+      body: "*"
+    };
+  }
+  rpc DeleteGroup(DeleteGroupRequest) returns (DeleteGroupResponse) {
+    option (google.api.http) = {delete: "/grpc/group/{Id}"};
+  }
+}
+
+/*REQUEST*/
+// 
+message GetGroupsRequest{}
+
+// 
+message GetGroupRequest{
+  string Id = 1;
+}
+
+// 
+message CreateGroupRequest{
+  // 
+  string Name = 1;
+  string UserId = 2;
+}
+
+// 
+message UpdateGroupRequest{
+  string Id = 1;
+  optional string Name = 2;
+  optional string UserId = 3;
+}
+
+// 
+message DeleteGroupRequest{
+  string Id = 1;
+}
+
+/*RESPONSE*/
+// 
+message GetGroupsResponse {
+  // 
+  bool Success = 1;
+  // 
+  repeated common.GroupInfo Groups = 2;
+}
+
+// 
+message GetGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.GroupInfo Groups = 2;
+}
+
+// 
+message CreateGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  string Id = 2;
+}
+
+// 
+message UpdateGroupResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.GroupInfo UpdateGroup = 2;
+}
+
+// 
+message DeleteGroupResponse {
+  // 
+  bool Success = 1;
+}

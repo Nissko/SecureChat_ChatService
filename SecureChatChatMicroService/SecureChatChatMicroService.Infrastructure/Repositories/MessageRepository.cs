@@ -21,13 +21,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([chatId]) ?? throw new Exception("Chat not found");
+                var chat = await _context.Chat.FindAsync([chatId]) ?? throw new("Chat not found");
                 var messages = await _context.Message.Where(x => x.ChatId == chat.Id).ToListAsync();
                 return GetMessageDto(messages);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -35,12 +35,12 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var message = await _context.Message.FindAsync([id]) ?? throw new Exception("Message not found");
+                var message = await _context.Message.FindAsync([id]) ?? throw new("Message not found");
                 return GetMessageDto(message);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -59,7 +59,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -68,7 +68,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var message = await _context.Message.FindAsync([request.Id]) ??
-                              throw new Exception("Message not found");
+                              throw new("Message not found");
                 if (message.Content != request.Content)
                 { 
                     message.Update(request.Content);
@@ -82,7 +82,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -90,7 +90,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
-                var message = await _context.Message.FindAsync(id) ?? throw new Exception("Message not found");
+                var message = await _context.Message.FindAsync(id) ?? throw new("Message not found");
                 message.SoftDelete(SystemClock.Instance.GetCurrentInstant());
                 
                 _context.Message.Update(message);
@@ -100,13 +100,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
         
         private static MessageDto GetMessageDto(MessageEntity e)
         {
-            return new MessageDto(
+            return new(
                 e.Id,
                 e.AnswerMessageId,
                 e.ChatId,

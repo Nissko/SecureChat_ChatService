@@ -26,7 +26,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -35,12 +35,12 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var chatParticipant = await _context.ChatParticipants.FindAsync([id]) ??
-                                      throw new Exception("Chat Participant not found");
+                                      throw new("Chat Participant not found");
                 return GetChatParticipantsDto(chatParticipant);
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -58,7 +58,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -67,7 +67,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var chatParticipant = await _context.ChatParticipants.FindAsync([request.Id]) ??
-                                      throw new Exception("Chat Participant not found");
+                                      throw new("Chat Participant not found");
                 chatParticipant.Update(request.ExitTime);
                 
                 _context.ChatParticipants.Update(chatParticipant);
@@ -77,7 +77,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
 
@@ -86,10 +86,10 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var chatParticipant = await _context.ChatParticipants.FindAsync([id]) ??
-                                      throw new Exception("Chat Participant not found");
+                                      throw new("Chat Participant not found");
                 if (chatParticipant.UserId == chatParticipant.Chat.OwnerId && chatParticipant.Chat.OwnerId != null)
                 {
-                    throw new Exception("You cannot delete Owner Chat Participants");
+                    throw new("You cannot delete Owner Chat Participants");
                 }
                 
                 _context.ChatParticipants.Remove(chatParticipant);
@@ -99,13 +99,13 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new(ex.Message);
             }
         }
         
         private static ChatParticipantsDto GetChatParticipantsDto(ChatParticipantsEntity e)
         {
-            return new ChatParticipantsDto(
+            return new(
                 e.Id,
                 e.EnterTime,
                 e.ExitTime ?? null,

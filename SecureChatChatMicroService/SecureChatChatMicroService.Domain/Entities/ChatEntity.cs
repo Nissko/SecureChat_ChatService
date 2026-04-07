@@ -51,7 +51,7 @@ namespace SecureChatChatMicroService.Domain.Entities
         public bool IsDeleted { get; private set; }
 
         /// <summary>
-        /// Тип (Чат, канал, группа)
+        /// Тип (Личный чат, канал, группа)
         /// </summary>
         public Guid Type { get; private set; }
 

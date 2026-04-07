@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "Common/chat_microservice_commons.proto";
+
+option csharp_namespace = "ChatService.Proto";
+
+// 
+service ChatGrpcService {
+  rpc CreateChat(CreateChatRequest) returns (CreateChatResponse) {
+    option (google.api.http) = {
+      post: "/grpc/chat/add"
+      body: "*"
+    };
+  }
+  rpc GetChats(GetChatsRequest) returns (GetChatsResponse) {
+    option (google.api.http) = {get: "/grpc/chats"};
+  }
+  rpc GetChat(GetChatRequest) returns (GetChatResponse) {
+    option (google.api.http) = {get: "/grpc/chat/{Id}"};
+  }
+  rpc UpdateChat(UpdateChatRequest) returns (UpdateChatResponse) {
+    option (google.api.http) = {
+      put: "/grpc/chat/{Id}"
+      body: "*"
+    };
+  }
+  rpc DeleteChat(DeleteChatRequest) returns (DeleteChatResponse) {
+    option (google.api.http) = {delete: "/grpc/chat/{Id}"};
+  }
+}
+
+/*REQUEST*/
+// 
+message GetChatsRequest{}
+
+// 
+message GetChatRequest{
+  string Id = 1;
+}
+
+// 
+message CreateChatRequest{
+  // 
+  string Type = 1;
+  string OwnerId = 2;
+  string ChatGroupId = 3;
+}
+
+// 
+message UpdateChatRequest{
+  string Id = 1;
+  optional google.protobuf.Timestamp LastMessageTime = 2;
+  optional int32 CountUnreadMessages = 3;
+  optional bool IsPint = 4;
+  optional bool IsMute = 5;
+  optional string Type = 6;
+  optional string GroupId = 7;
+}
+
+// 
+message DeleteChatRequest{
+  string Id = 1;
+}
+
+/*RESPONSE*/
+// 
+message GetChatsResponse {
+  // 
+  bool Success = 1;
+  // 
+  repeated common.ChatInfo Chats = 2;
+}
+
+// 
+message GetChatResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatInfo Chats = 2;
+}
+
+// 
+message CreateChatResponse {
+  // 
+  bool Success = 1;
+  // 
+  string Id = 2;
+}
+
+// 
+message UpdateChatResponse {
+  // 
+  bool Success = 1;
+  // 
+  common.ChatInfo UpdateChat = 2;
+}
+
+// 
+message DeleteChatResponse {
+  // 
+  bool Success = 1;
+}
