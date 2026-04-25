@@ -24,16 +24,7 @@
     <ItemGroup>
         <Protobuf Include="ChatMicroService\Common\*.proto" GrpcServices="None"
                   ProtoRoot="ChatMicroService" />
-        <Protobuf Include="ChatMicroService\UserProtos\user-service.proto" GrpcServices="Both"
-                  ProtoRoot="ChatMicroService"/>
-        <Protobuf Include="ChatMicroService\GroupProtos\group-service.proto" GrpcServices="Both"
-                  ProtoRoot="ChatMicroService"/>
-        <Protobuf Include="ChatMicroService\ChatParticipantsProtos\chat-participants-service.proto" GrpcServices="Both"
-                  ProtoRoot="ChatMicroService"/>
-        <Protobuf Include="ChatMicroService\ChatGroupProtos\chat-group-service.proto" GrpcServices="Both" ProtoRoot="ChatMicroService" />
         <Protobuf Include="ChatMicroService\ChatProtos\chat-service.proto" GrpcServices="Both"
-                  ProtoRoot="ChatMicroService"/>
-        <Protobuf Include="ChatMicroService\MessageProtos\message-service.proto" GrpcServices="Both"
                   ProtoRoot="ChatMicroService"/>
     </ItemGroup>
 

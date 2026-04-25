@@ -13,7 +13,7 @@ using SecureChatChatMicroService.Infrastructure;
 namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ChatServiceDbContext))]
-    [Migration("20260407064155_ChatMicroService_Migration_0.0.1")]
+    [Migration("20260425153820_ChatMicroService_Migration_0.0.1")]
     partial class ChatMicroService_Migration_001
     {
         /// <inheritdoc />
@@ -36,43 +36,15 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("CountUnreadMessages")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("CountUnreadMessages")
-                        .HasComment("Кол-во непрочитанных сообщений");
-
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted")
                         .HasComment("Удален ли");
 
-                    b.Property<bool>("IsMute")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsMute")
-                        .HasComment("Показывать ли уведомления");
-
-                    b.Property<bool>("IsPint")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsPint")
-                        .HasComment("Закреплен ли чат");
-
-                    b.Property<Instant>("LastMessageTime")
+                    b.Property<Instant?>("LastMessageTime")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("LastMessageTime")
                         .HasComment("Дата последнего сообщения");
-
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("OwnerId")
-                        .HasComment("Создатель чата");
 
                     b.Property<Guid>("Type")
                         .HasColumnType("uuid")
@@ -120,13 +92,23 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.Property<Instant>("EnterTime")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("EnterTime")
                         .HasComment("Дата входа");
 
                     b.Property<Instant?>("ExitTime")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ExitTime")
                         .HasComment("Дата выхода");
+
+                    b.Property<bool>("IsMuted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Есть ли уведомления от чата у пользователя");
+
+                    b.Property<bool>("IsPint")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasComment("Закреплен ли чат у пользователя");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -175,48 +157,32 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ChatId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Content")
-                        .HasComment("Текст сообщения");
+                    b.Property<Guid>("ChatParticipantsId")
+                        .HasColumnType("uuid");
 
                     b.Property<Instant?>("DeleteTime")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("DeleteTime")
                         .HasComment("Дата удаления");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted")
                         .HasComment("Удалено ли");
-
-                    b.Property<bool>("IsEdited")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsEdited")
-                        .HasComment("Изменено ли");
 
                     b.Property<Instant>("SendTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("SendTime")
                         .HasComment("Дата отправки");
 
-                    b.Property<Guid>("TypeOfMessage")
-                        .HasColumnType("uuid")
-                        .HasColumnName("TypeOfMessage")
-                        .HasComment("Тип сообщения");
+                    b.Property<string>("TextMessage")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasComment("Текст сообщения");
 
                     b.Property<Instant?>("UpdateTime")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("UpdateTime")
                         .HasComment("Дата изменения");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -224,30 +190,22 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ChatParticipantsId");
 
                     b.ToTable("Messages", "ChatMicroService");
                 });
 
             modelBuilder.Entity("SecureChatChatMicroService.Domain.Entities.UserEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted")
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
                         .HasComment("Удален ли");
 
-                    b.Property<Guid>("UserProfileId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("UserProfileId")
-                        .HasComment("Ид профиля пользователя");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users", "ChatMicroService");
                 });
@@ -350,9 +308,9 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("SecureChatChatMicroService.Domain.Entities.UserEntity", "User")
+                    b.HasOne("SecureChatChatMicroService.Domain.Entities.ChatParticipantsEntity", "ChatParticipant")
                         .WithMany("Messages")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("ChatParticipantsId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -360,7 +318,7 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Chat");
 
-                    b.Navigation("User");
+                    b.Navigation("ChatParticipant");
                 });
 
             modelBuilder.Entity("SecureChatChatMicroService.Domain.Entities.ChatEntity", b =>
@@ -369,6 +327,11 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("ChatParticipants");
 
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("SecureChatChatMicroService.Domain.Entities.ChatParticipantsEntity", b =>
+                {
                     b.Navigation("Messages");
                 });
 
@@ -387,8 +350,6 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                     b.Navigation("ChatParticipants");
 
                     b.Navigation("Groups");
-
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

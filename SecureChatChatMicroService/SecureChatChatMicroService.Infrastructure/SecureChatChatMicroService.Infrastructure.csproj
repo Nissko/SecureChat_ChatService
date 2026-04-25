@@ -20,14 +20,14 @@
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="9.0.4" />
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Persistence\Migrations\" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SecureChatChatMicroService.Application\SecureChatChatMicroService.Application.csproj" />
       <ProjectReference Include="..\SecureChatChatMicroService.Domain\SecureChatChatMicroService.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\Migrations\" />
     </ItemGroup>
 
 </Project>

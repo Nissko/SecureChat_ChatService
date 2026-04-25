@@ -1,4 +1,4 @@
-using SecureChatChatMicroService.Domain.Common;
+using NodaTime;
 
 namespace SecureChatChatMicroService.Domain.Entities
 {
@@ -6,38 +6,37 @@ namespace SecureChatChatMicroService.Domain.Entities
     /// Пользователь
     /// TODO: настроить синхронизацию с UserChatMicroservice
     /// </summary>
-    public class UserEntity : Entity
+    public class UserEntity
     {
         public UserEntity()
         {
             Groups = new HashSet<GroupEntity>();
             ChatParticipants = new HashSet<ChatParticipantsEntity>();
-            Messages = new HashSet<MessageEntity>();
         }
 
-        public UserEntity(Guid userProfileId, bool isDeleted) : this()
+        public UserEntity(Guid userId, Instant? deletedAt) : this()
         {
-            UserProfileId = userProfileId;
-            IsDeleted = isDeleted;
+            UserId = userId;
+            DeletedAt = deletedAt;
         }
 
         /// <summary>
-        /// Ид профиля пользователя
+        /// Идентификатор пользователя с сервиса User
         /// </summary>
-        public Guid UserProfileId { get; private set; }
-
+        public Guid UserId { get; private set; }
+        
         /// <summary>
-        /// Удален ли
+        /// Удален ли пользователь
         /// </summary>
-        public bool IsDeleted { get; private set; }
+        public Instant? DeletedAt { get; private set; }
 
         public virtual ICollection<GroupEntity> Groups { get; private set; }
         public virtual ICollection<ChatParticipantsEntity> ChatParticipants { get; private set; }
-        public virtual ICollection<MessageEntity> Messages { get; private set; }
 
-        public void Update(bool? isDeleted)
+
+        public void Update(Instant? deletedAt)
         {
-            IsDeleted = isDeleted ?? IsDeleted;
+            DeletedAt = deletedAt ?? DeletedAt;
         }
     }
 }

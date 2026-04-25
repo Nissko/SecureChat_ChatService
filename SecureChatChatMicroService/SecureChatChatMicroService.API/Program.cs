@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using SecureChatChatMicroService.Application.Extensions;
-using SecureChatChatMicroService.Application.GrpcServices;
 using SecureChatChatMicroService.Infrastructure.Extensions;
+using ChatGrpcService = SecureChatChatMicroService.Application.GrpcServices.ChatGrpcService;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc(options =>
@@ -64,11 +64,6 @@ if (app.Environment.IsDevelopment())
 }
 
 // Регистрация gRPC-сервисов
-app.MapGrpcService<UserGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<GroupGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<ChatGroupGrpcService>().EnableGrpcWeb();
 app.MapGrpcService<ChatGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<ChatParticipantsGrpcService>().EnableGrpcWeb();
-app.MapGrpcService<MessageGrpcService>().EnableGrpcWeb();
 
 app.Run();

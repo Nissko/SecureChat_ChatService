@@ -9,17 +9,11 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<UserEntity> builder)
         {
             builder.ToTable("Users");
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.UserId);
         
-            builder.Property(x => x.UserProfileId)
-                .HasColumnName("UserProfileId")
-                .IsRequired()
-                .HasComment("Ид профиля пользователя");
-        
-            builder.Property(x => x.IsDeleted)
-                .HasColumnName("IsDeleted")
-                .IsRequired()
-                .HasDefaultValue(false)
+            builder.Property(x => x.DeletedAt)
+                .IsRequired(false)
+                .HasDefaultValue(null)
                 .HasComment("Удален ли");
         }
     }

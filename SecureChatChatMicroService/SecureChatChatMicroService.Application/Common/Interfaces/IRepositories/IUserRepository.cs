@@ -1,33 +1,15 @@
-using Dtos.DTO.UserDtos.Crud;
-using Requests.User;
-
 namespace SecureChatChatMicroService.Application.Common.Interfaces.IRepositories
 {
     public interface IUserRepository
     {
         /// <summary>
-        /// Получение всех пользователей
+        /// Добавление пользователя
         /// </summary>
-        Task<List<UserDto>> GetAll();
-
+        Task<bool> AddUser(Guid userId);
+        
         /// <summary>
-        /// Получение пользователя
+        /// Удаление пользователя
         /// </summary>
-        Task<UserDto> FromId(Guid id);
-
-        /// <summary>
-        /// Добавление нового пользователя
-        /// </summary>
-        Task<Guid> Create(CreateUserRequest request);
-
-        /// <summary>
-        /// Обновление информации
-        /// </summary>
-        Task<UserDto> Update(UpdateUserRequest request);
-
-        /// <summary>
-        /// Удаление
-        /// </summary>
-        Task<bool> Delete(Guid id);
+        Task<bool> RemoveUser(Guid userId);
     }
 }

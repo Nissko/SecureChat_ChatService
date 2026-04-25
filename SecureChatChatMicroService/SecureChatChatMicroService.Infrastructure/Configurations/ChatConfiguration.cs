@@ -12,27 +12,11 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
             builder.HasKey(x => x.Id);
             
             builder.Property(x => x.LastMessageTime)
-                .HasColumnName("LastMessageTime")
-                .IsRequired()
+                .IsRequired(false)
+                .HasDefaultValue(null)
                 .HasComment("Дата последнего сообщения");
             
-            builder.Property(x => x.CountUnreadMessages)
-                .HasColumnName("CountUnreadMessages")
-                .HasDefaultValue(0)
-                .HasComment("Кол-во непрочитанных сообщений");
-            
-            builder.Property(x => x.IsPint)
-                .HasColumnName("IsPint")
-                .HasDefaultValue(false)
-                .HasComment("Закреплен ли чат");
-            
-            builder.Property(x => x.IsMute)
-                .HasColumnName("IsMute")
-                .HasDefaultValue(false)
-                .HasComment("Показывать ли уведомления");
-            
             builder.Property(x => x.IsDeleted)
-                .HasColumnName("IsDeleted")
                 .HasDefaultValue(false)
                 .HasComment("Удален ли");
             
@@ -40,11 +24,6 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
                 .HasColumnName("Type")
                 .IsRequired()
                 .HasComment("Тип (чат, канал, группа)");
-            
-            builder.Property(x => x.OwnerId)
-                .HasColumnName("OwnerId")
-                .IsRequired(false)
-                .HasComment("Создатель чата");
         }
     }
 }

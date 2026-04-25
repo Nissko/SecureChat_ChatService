@@ -1,33 +1,33 @@
+using Dtos.DTO;
 using Dtos.DTO.ChatDtos.Crud;
+using Dtos.DTO.MessageDtos.Crud;
 using Requests.Chat;
+using Requests.Message;
 
 namespace SecureChatChatMicroService.Application.Common.Interfaces.IRepositories
 {
     public interface IChatRepository
     {
         /// <summary>
-        /// Получение всех
+        /// Создание нового чата
         /// </summary>
-        Task<List<ChatDto>> GetAll();
+        Task<ChatDto> CreateChat(CreateChatRequest createChatRequest);
 
         /// <summary>
-        /// Получение
+        /// Получение списка чатов пользователя
         /// </summary>
-        Task<ChatDto> FromId(Guid id);
+        Task<PaginationDto<ChatDto>> GetUserChats(GetUserChatsRequest getUserChatsRequest);
 
         /// <summary>
-        /// Добавление
+        /// Получение истории сообщений чата
         /// </summary>
-        Task<Guid> Create(CreateChatRequest request);
+        Task<PaginationDto<MessageDto>> GetMessages(GetMessagesRequest getMessagesRequest);
 
         /// <summary>
-        /// Обновление
+        /// Получение информации о чате
         /// </summary>
-        Task<ChatDto> Update(UpdateChatRequest request);
+        Task<ChatDto> GetChatInfo(GetChatInfoRequest getChatInfoRequest);
 
-        /// <summary>
-        /// Удаление
-        /// </summary>
-        Task<bool> Delete(Guid id);
+        Task SendMessage(SendMessageRequest sendMessageRequest);
     }
 }

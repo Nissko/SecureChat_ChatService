@@ -1,4 +1,5 @@
 using ChatService.Proto;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using SecureChatChatMicroService.Application.Common.Interfaces.IRepositories;
 using SecureChatChatMicroService.Application.Extensions;
@@ -13,21 +14,31 @@ namespace SecureChatChatMicroService.Application.GrpcServices
         : ChatService.Proto.ChatGrpcService.ChatGrpcServiceBase
     {
         private readonly IChatRepository _chatRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ChatGrpcService(IChatRepository chatRepository)
+        public ChatGrpcService(IChatRepository chatRepository, IUserRepository userRepository)
         {
             _chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         }
 
-        public override async Task<GetChatResponse> GetChat(GetChatRequest request, ServerCallContext context)
+        public override async Task<ChatResponse> CreateChat(CreateChatRequest request, ServerCallContext context)
         {
             try
             {
-                var chat = await _chatRepository.FromId(request.Id.ToGuid());
-                return new()
+                var participantIds = request.ParticipantIds.Select(x => x.ToGuid()).ToList();
+                if (participantIds.Count == 0)
                 {
-                    Success = true,
-                    Chats = chat.ToProtoChatInfo()
+                    throw new Exception("No participantIds provided");
+                }
+                
+                var newChat = await _chatRepository.CreateChat(new(participantIds, null));
+                return new ChatResponse
+                {
+                    Id = newChat.Id.ToString(),
+                    LastMessage = newChat.LastMessage ?? "",
+                    LastMessageAt = newChat.LastMessageAt?.ToTimestamp() ?? null,
+                    ParticipantIds = { newChat.ParticipantIds.Select(x => x.ToString()).ToList() }
                 };
             }
             catch (Exception ex)
@@ -36,15 +47,17 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             }
         }
 
-        public override async Task<GetChatsResponse> GetChats(GetChatsRequest request, ServerCallContext context)
+        public override async Task<ChatsListResponse> GetUserChats(GetUserChatsRequest request,
+            ServerCallContext context)
         {
             try
             {
-                var chats = await _chatRepository.GetAll();
-                return new()
+                var userChats = await _chatRepository
+                    .GetUserChats(new(request.UserId.ToGuid(), request.Limit, request.Offset));
+                return new ChatsListResponse
                 {
-                    Success = true,
-                    Chats = { chats.ToProtoChatInfoList() }
+                    Chats = { userChats.Items.ToProtoChatInfoList() },
+                    Total = userChats.TotalCount
                 };
             }
             catch (Exception ex)
@@ -53,16 +66,18 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             }
         }
 
-        public override async Task<CreateChatResponse> CreateChat(CreateChatRequest request, ServerCallContext context)
+        public override async Task<MessagesListResponse> GetMessages(GetMessagesRequest request,
+            ServerCallContext context)
         {
             try
             {
-                var createChat = await _chatRepository.Create(new(request.Type.ToGuid(),
-                    request.OwnerId.ToGuid(), request.ChatGroupId.ToGuid()));
-                return new()
+                var messages = await _chatRepository
+                    .GetMessages(new(request.ChatId.ToGuid(), request.Limit, request.Offset));
+
+                return new MessagesListResponse
                 {
-                    Success = true,
-                    Id = createChat.ToString()
+                    Messages = { messages.Items.ToProtoChatMessagesInfoList() },
+                    Total = messages.TotalCount
                 };
             }
             catch (Exception ex)
@@ -71,17 +86,17 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             }
         }
 
-        public override async Task<UpdateChatResponse> UpdateChat(UpdateChatRequest request, ServerCallContext context)
+        public override async Task<ChatResponse> GetChatInfo(GetChatInfoRequest request, ServerCallContext context)
         {
             try
             {
-                var updateChat = await _chatRepository.Update(new(request.Id.ToGuid(),
-                    request.LastMessageTime.ToInstant(), request.CountUnreadMessages, request.IsPint, request.IsMute,
-                    request.Type.ToGuid(), request.GroupId.ToGuid()));
-                return new()
+                var chatInfo = await _chatRepository.GetChatInfo(new(request.ChatId.ToGuid()));
+                return new ChatResponse
                 {
-                    Success = true,
-                    UpdateChat = updateChat.ToProtoChatInfo()
+                    Id = chatInfo.Id.ToString(),
+                    LastMessage = chatInfo.LastMessage ?? "",
+                    LastMessageAt = chatInfo.LastMessageAt?.ToTimestamp() ?? null,
+                    ParticipantIds = { chatInfo.ParticipantIds.Select(x => x.ToString()).ToList() }
                 };
             }
             catch (Exception ex)
@@ -90,14 +105,46 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             }
         }
 
-        public override async Task<DeleteChatResponse> DeleteChat(DeleteChatRequest request, ServerCallContext context)
+        public override async Task<Empty> SendMessage(SendMessageRequest request, ServerCallContext context)
         {
             try
             {
-                var deleteChat = await _chatRepository.Delete(request.Id.ToGuid());
-                return new()
+                await _chatRepository.SendMessage(new Requests.Message.SendMessageRequest(
+                    request.ChatId.ToGuid(), request.ChatParticipantId.ToGuid(), request.AnswerMessageId.ToGuid(),
+                    request.Text, request.SendTime.ToInstant()));
+
+                return new Empty();
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new(StatusCode.Aborted, ex.Message));
+            }
+        }
+
+        public override async Task<AddUserResponse> AddUser(AddUserRequest request, ServerCallContext context)
+        {
+            try
+            {
+                var newUser = await _userRepository.AddUser(request.UserId.ToGuid());
+                return new AddUserResponse
                 {
-                    Success = deleteChat
+                    Success = newUser
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new(StatusCode.Aborted, ex.Message));
+            }
+        }
+
+        public override async Task<RemoveUserResponse> RemoveUser(RemoveUserRequest request, ServerCallContext context)
+        {
+            try
+            {
+                var removedUser = await _userRepository.RemoveUser(request.UserId.ToGuid());
+                return new RemoveUserResponse
+                {
+                    Success = removedUser
                 };
             }
             catch (Exception ex)

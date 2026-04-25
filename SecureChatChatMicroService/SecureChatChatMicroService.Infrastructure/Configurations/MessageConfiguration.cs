@@ -17,38 +17,26 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
                 .HasComment("Дата отправки");
 
             builder.Property(x => x.UpdateTime)
-                .HasColumnName("UpdateTime")
                 .IsRequired(false)
+                .HasDefaultValue(null)
                 .HasComment("Дата изменения");
 
             builder.Property(x => x.DeleteTime)
-                .HasColumnName("DeleteTime")
                 .IsRequired(false)
+                .HasDefaultValue(null)
                 .HasComment("Дата удаления");
 
-            builder.Property(x => x.IsEdited)
-                .HasColumnName("IsEdited")
-                .HasDefaultValue(false)
-                .HasComment("Изменено ли");
-
             builder.Property(x => x.IsDeleted)
-                .HasColumnName("IsDeleted")
                 .HasDefaultValue(false)
                 .HasComment("Удалено ли");
-            
-            builder.Property(x => x.Content)
-                .HasColumnName("Content")
+
+            builder.Property(x => x.TextMessage)
                 .IsRequired()
                 .HasComment("Текст сообщения");
-            
-            builder.Property(x => x.TypeOfMessage)
-                .HasColumnName("TypeOfMessage")
-                .IsRequired()
-                .HasComment("Тип сообщения");
 
-            builder.HasOne(x => x.User)
+            builder.HasOne(x => x.ChatParticipant)
                 .WithMany(x => x.Messages)
-                .HasForeignKey(x => x.UserId)
+                .HasForeignKey(x => x.ChatParticipantsId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(x => x.Chat)

@@ -12,14 +12,21 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.EnterTime)
-                .HasColumnName("EnterTime")
                 .IsRequired()
                 .HasComment("Дата входа");
             
             builder.Property(x => x.ExitTime)
-                .HasColumnName("ExitTime")
                 .IsRequired(false)
+                .HasDefaultValue(null)
                 .HasComment("Дата выхода");
+
+            builder.Property(x => x.IsPint)
+                .HasDefaultValue(false)
+                .HasComment("Закреплен ли чат у пользователя");
+            
+            builder.Property(x => x.IsMuted)
+                .HasDefaultValue(false)
+                .HasComment("Есть ли уведомления от чата у пользователя");
             
             builder.HasOne(x => x.User)
                 .WithMany(x => x.ChatParticipants)

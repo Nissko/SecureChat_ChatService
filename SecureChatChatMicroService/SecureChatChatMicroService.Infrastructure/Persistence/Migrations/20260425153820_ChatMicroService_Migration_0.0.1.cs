@@ -21,13 +21,9 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    LastMessageTime = table.Column<Instant>(type: "timestamp with time zone", nullable: false, comment: "Дата последнего сообщения"),
-                    CountUnreadMessages = table.Column<int>(type: "integer", nullable: false, defaultValue: 0, comment: "Кол-во непрочитанных сообщений"),
-                    IsPint = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Закреплен ли чат"),
-                    IsMute = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Показывать ли уведомления"),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Удален ли"),
+                    LastMessageTime = table.Column<Instant>(type: "timestamp with time zone", nullable: true, comment: "Дата последнего сообщения"),
                     Type = table.Column<Guid>(type: "uuid", nullable: false, comment: "Тип (чат, канал, группа)"),
-                    OwnerId = table.Column<Guid>(type: "uuid", nullable: true, comment: "Создатель чата")
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Удален ли")
                 },
                 constraints: table =>
                 {
@@ -65,13 +61,12 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                 schema: "ChatMicroService",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Ид профиля пользователя"),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Удален ли")
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DeletedAt = table.Column<Instant>(type: "timestamp with time zone", nullable: true, comment: "Удален ли")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -82,6 +77,8 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     EnterTime = table.Column<Instant>(type: "timestamp with time zone", nullable: false, comment: "Дата входа"),
                     ExitTime = table.Column<Instant>(type: "timestamp with time zone", nullable: true, comment: "Дата выхода"),
+                    IsPint = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Закреплен ли чат у пользователя"),
+                    IsMuted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Есть ли уведомления от чата у пользователя"),
                     ChatId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
@@ -99,7 +96,7 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         column: x => x.UserId,
                         principalSchema: "ChatMicroService",
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -119,7 +116,7 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         column: x => x.UserId,
                         principalSchema: "ChatMicroService",
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -130,18 +127,22 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AnswerMessageId = table.Column<Guid>(type: "uuid", nullable: true),
                     ChatId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ChatParticipantsId = table.Column<Guid>(type: "uuid", nullable: false),
                     SendTime = table.Column<Instant>(type: "timestamp with time zone", nullable: false, comment: "Дата отправки"),
                     UpdateTime = table.Column<Instant>(type: "timestamp with time zone", nullable: true, comment: "Дата изменения"),
                     DeleteTime = table.Column<Instant>(type: "timestamp with time zone", nullable: true, comment: "Дата удаления"),
-                    Content = table.Column<string>(type: "text", nullable: false, comment: "Текст сообщения"),
-                    TypeOfMessage = table.Column<Guid>(type: "uuid", nullable: false, comment: "Тип сообщения"),
-                    IsEdited = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Изменено ли"),
+                    TextMessage = table.Column<string>(type: "text", nullable: false, comment: "Текст сообщения"),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false, comment: "Удалено ли")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_ChatParticipants_ChatParticipantsId",
+                        column: x => x.ChatParticipantsId,
+                        principalSchema: "ChatMicroService",
+                        principalTable: "ChatParticipants",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Messages_Chats_ChatId",
                         column: x => x.ChatId,
@@ -153,12 +154,6 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         column: x => x.AnswerMessageId,
                         principalSchema: "ChatMicroService",
                         principalTable: "Messages",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Messages_Users_UserId",
-                        column: x => x.UserId,
-                        principalSchema: "ChatMicroService",
-                        principalTable: "Users",
                         principalColumn: "Id");
                 });
 
@@ -239,10 +234,10 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                 column: "ChatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_UserId",
+                name: "IX_Messages_ChatParticipantsId",
                 schema: "ChatMicroService",
                 table: "Messages",
-                column: "UserId");
+                column: "ChatParticipantsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TypeOfMessages_Id",
@@ -259,10 +254,6 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                 schema: "ChatMicroService");
 
             migrationBuilder.DropTable(
-                name: "ChatParticipants",
-                schema: "ChatMicroService");
-
-            migrationBuilder.DropTable(
                 name: "ChatTypes",
                 schema: "ChatMicroService");
 
@@ -276,6 +267,10 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Groups",
+                schema: "ChatMicroService");
+
+            migrationBuilder.DropTable(
+                name: "ChatParticipants",
                 schema: "ChatMicroService");
 
             migrationBuilder.DropTable(

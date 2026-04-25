@@ -1,187 +1,189 @@
+using Dtos.DTO;
 using Dtos.DTO.ChatDtos.Crud;
-using Dtos.DTO.ChatGroupDtos.Crud;
-using Dtos.DTO.ChatParticipantsDtos.Crud;
 using Dtos.DTO.MessageDtos.Crud;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Requests.Chat;
+using Requests.Message;
 using SecureChatChatMicroService.Application.Common.Interfaces;
 using SecureChatChatMicroService.Application.Common.Interfaces.IRepositories;
 using SecureChatChatMicroService.Domain.Entities;
 using SecureChatChatMicroService.Domain.Enums;
+
 
 namespace SecureChatChatMicroService.Infrastructure.Repositories
 {
     public class ChatRepository : IChatRepository
     {
         private readonly IChatServiceDbContext _context;
+        private const string DefaultGroupName = "Все чаты";
 
         public ChatRepository(IChatServiceDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<ChatDto>> GetAll()
+        private async Task SaveChanges()
         {
-            try
-            {
-                var chats = await _context.Chat.ToListAsync();
-                return GetChatDto(chats);
-            }
-            catch(Exception ex){
-                throw new(ex.Message);
-            }
+            await _context.SaveChangesAsync(CancellationToken.None);
         }
 
-        public async Task<ChatDto> FromId(Guid id)
+        public async Task<ChatDto> CreateChat(CreateChatRequest createChatRequest)
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([id]) ?? throw new("Chat not found");
-                return GetChatDto(chat);
-            }
-            catch(Exception ex){
-                throw new(ex.Message);
-            }
-        }
+                var newChat = new ChatEntity(null, ChatTypeEnum.ChatType.Id, false);
+                foreach (var newParticipantId in createChatRequest.ParticipantIds)
+                {
+                    newChat.ChatParticipants.Add(new ChatParticipantsEntity(SystemClock.Instance.GetCurrentInstant(),
+                        null, newChat.Id, newParticipantId));
+                    var user = await _context.User.FirstOrDefaultAsync(x => x.UserId == newParticipantId) ??
+                               throw new NullReferenceException("User not found");
+                    var defaultUserGroup = user.Groups.FirstOrDefault(x => x.Name == DefaultGroupName) ??
+                                           throw new NullReferenceException("Default user group not found");
+                    newChat.ChatGroups.Add(new ChatGroupEntity(newChat.Id, defaultUserGroup.Id));
+                }
 
-        public async Task<Guid> Create(CreateChatRequest request)
-        {
-            try
-            {
-                var chatTypeEnum = ChatTypeEnum.FromId(request.Type);
-                var newChat = new ChatEntity(SystemClock.Instance.GetCurrentInstant(), 0, false, false, false,
-                    chatTypeEnum.Id, request.OwnerId);
-                newChat.ChatGroups.Add(new(newChat.Id, request.ChatGroupId));
                 _context.Chat.Add(newChat);
                 await SaveChanges();
-                
-                return newChat.Id;
+
+                return GetChatDto(newChat);
             }
-            catch(Exception ex){
-                throw new(ex.Message);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<ChatDto> Update(UpdateChatRequest request)
+        public async Task<PaginationDto<ChatDto>> GetUserChats(GetUserChatsRequest getUserChatsRequest)
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([request.Id]) ?? throw new("Chat not found");
-                chat.Update(request.LastMessageTime, request.CountUnreadMessages, request.IsPint, request.IsMute,
-                    request.Type, null);
-                var chatGroup = chat.ChatGroups.FirstOrDefault(x => x.ChatId == chat.Id) ??
-                                throw new("ChatGroup not found");
-                chatGroup.Update(null, request.GroupId);
-                
-                _context.Chat.Update(chat);
-                _context.ChatGroup.Update(chatGroup);
-                await SaveChanges();
-                
+                var chatParticipants = await _context.ChatParticipants
+                    .Where(x => x.UserId == getUserChatsRequest.UserId)
+                    .OrderByDescending(x => x.EnterTime)
+                    .Skip(getUserChatsRequest.Offset)
+                    .Take(getUserChatsRequest.Limit)
+                    .Include(x => x.Chat)
+                    .ThenInclude(c => c.Messages)
+                    .Include(x => x.Chat)
+                    .ThenInclude(c => c.ChatParticipants)
+                    .Include(x => x.Chat)
+                    .ThenInclude(c => c.ChatGroups)
+                    .ToListAsync();
+                var chats = chatParticipants.Select(x => x.Chat).ToList();
+
+                return new PaginationDto<ChatDto>(GetChatDtos(chats), chats.Count);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<PaginationDto<MessageDto>> GetMessages(GetMessagesRequest getMessagesRequest)
+        {
+            try
+            {
+                var totalCount = await _context.Message
+                    .Where(x => x.ChatId == getMessagesRequest.ChatId)
+                    .CountAsync();
+                var messages = await _context.Message
+                    .Where(x => x.ChatId == getMessagesRequest.ChatId)
+                    .OrderByDescending(x => x.SendTime)
+                    .Skip(getMessagesRequest.Offset)
+                    .Take(getMessagesRequest.Limit)
+                    .ToListAsync();
+                return new PaginationDto<MessageDto>(GetMessageDtos(messages), totalCount);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<ChatDto> GetChatInfo(GetChatInfoRequest getChatInfoRequest)
+        {
+            try
+            {
+                var chat = await _context.Chat.FirstOrDefaultAsync(x => x.Id == getChatInfoRequest.ChatId) ??
+                           throw new NullReferenceException("Chat not found");
                 return GetChatDto(chat);
             }
-            catch(Exception ex){
-                throw new(ex.Message);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
-        public async Task<bool> Delete(Guid id)
+        public async Task SendMessage(SendMessageRequest sendMessageRequest)
         {
             try
             {
-                var chat = await _context.Chat.FindAsync([id]) ?? throw new("Chat not found");
-                if (chat.IsDeleted) throw new("Chat already is deleted");
-
-                chat.Update(null, null, null, null, null, true);
-                _context.Chat.Update(chat);
+                var chatParticipant = _context.ChatParticipants
+                                          .FirstOrDefault(x => x.UserId == sendMessageRequest.ChatParticipantId) ??
+                                      throw new NullReferenceException("Chat participant not found");
+                var answerMessageId = sendMessageRequest.AnswerMessageId == Guid.Empty
+                    ? null
+                    : sendMessageRequest.AnswerMessageId;
+                var newMessage = new MessageEntity(answerMessageId, sendMessageRequest.ChatId,
+                    chatParticipant.Id, SystemClock.Instance.GetCurrentInstant(), null, null,
+                    sendMessageRequest.Text);
+                
+                _context.Message.Add(newMessage);
                 await SaveChanges();
-
-                return true;
             }
-            catch(Exception ex){
-                throw new(ex.Message);
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
         }
 
         private static ChatDto GetChatDto(ChatEntity e)
         {
+            var lastMessage = e.Messages.LastOrDefault();
             return new(
                 e.Id,
-                e.LastMessageTime,
-                e.CountUnreadMessages,
-                e.IsPint,
-                e.IsMute,
-                e.IsDeleted,
-                e.Type,
-                e.OwnerId ?? null,
-                e.ChatGroups.Select(cgr => new ChatGroupDto(
-                        cgr.Id,
-                        cgr.ChatId,
-                        cgr.ChatId))
-                    .ToList(),
-                e.ChatParticipants.Select(chp => new ChatParticipantsDto(
-                        chp.Id,
-                        chp.EnterTime,
-                        chp.ExitTime ?? null,
-                        chp.ChatId,
-                        chp.UserId))
-                    .ToList(),
-                e.Messages.Select(chm => new MessageDto(
-                    chm.Id,
-                    chm.AnswerMessageId ?? null,
-                    chm.ChatId,
-                    chm.UserId,
-                    chm.TypeOfMessage,
-                    chm.Content,
-                    chm.SendTime,
-                    chm.UpdateTime ?? null,
-                    chm.DeleteTime ?? null,
-                    chm.IsEdited,
-                    chm.IsDeleted)).ToList()
+                e.ChatParticipants.Select(x => x.UserId).ToList(),
+                lastMessage?.TextMessage,
+                lastMessage?.SendTime
             );
         }
 
-        private static List<ChatDto> GetChatDto(List<ChatEntity> e)
+        private static List<ChatDto> GetChatDtos(List<ChatEntity> en)
         {
-            return e.Select(u => new ChatDto(
-                u.Id,
-                u.LastMessageTime,
-                u.CountUnreadMessages,
-                u.IsPint,
-                u.IsMute,
-                u.IsDeleted,
-                u.Type,
-                u.OwnerId ?? null,
-                u.ChatGroups.Select(cgr => new ChatGroupDto(
-                        cgr.Id,
-                        cgr.ChatId,
-                        cgr.ChatId))
-                    .ToList(),
-                u.ChatParticipants.Select(chp => new ChatParticipantsDto(
-                        chp.Id,
-                        chp.EnterTime,
-                        chp.ExitTime ?? null,
-                        chp.ChatId,
-                        chp.UserId))
-                    .ToList(),
-                u.Messages.Select(chm => new MessageDto(
-                    chm.Id,
-                    chm.AnswerMessageId ?? null,
-                    chm.ChatId,
-                    chm.UserId,
-                    chm.TypeOfMessage,
-                    chm.Content,
-                    chm.SendTime,
-                    chm.UpdateTime ?? null,
-                    chm.DeleteTime ?? null,
-                    chm.IsEdited,
-                    chm.IsDeleted)).ToList()
-            )).ToList();
+            return en.Select(e =>
+            {
+                var lastMessage = e.Messages.LastOrDefault();
+                return new ChatDto(
+                    e.Id,
+                    e.ChatParticipants.Select(x => x.UserId).ToList(),
+                    lastMessage?.TextMessage,
+                    lastMessage?.SendTime
+                );
+            }).ToList();
         }
 
-        private async Task SaveChanges()
+        private static MessageDto GetMessageDto(MessageEntity e)
         {
-            await _context.SaveChangesAsync(CancellationToken.None);
+            return new(
+                e.Id,
+                e.ChatId,
+                e.ChatParticipantsId,
+                e.TextMessage,
+                e.SendTime
+            );
+        }
+
+        private static List<MessageDto> GetMessageDtos(List<MessageEntity> en)
+        {
+            return en.Select(e => new MessageDto(
+                e.Id,
+                e.ChatId,
+                e.ChatParticipantsId,
+                e.TextMessage,
+                e.SendTime
+            )).ToList();
         }
     }
 }

@@ -10,18 +10,16 @@ namespace SecureChatChatMicroService.Domain.Entities
             RepliesMessage = new HashSet<MessageEntity>();
         }
 
-        public MessageEntity(Guid chatId, Guid userId, Instant sendTime, Instant updateTime, string content,
-            Guid typeOfMessage, Instant? deleteTime, bool isEdited, bool isDeleted, Guid? answerMessageId) : this()
+        public MessageEntity(Guid? answerMessageId, Guid chatId, Guid chatParticipantsId, Instant sendTime,
+            Instant? updateTime, Instant? deleteTime, string text, bool isDeleted = false)
         {
             AnswerMessageId = answerMessageId;
             ChatId = chatId;
-            UserId = userId;
-            Content = content;
-            TypeOfMessage = typeOfMessage;
+            ChatParticipantsId = chatParticipantsId;
             SendTime = sendTime;
             UpdateTime = updateTime;
             DeleteTime = deleteTime;
-            IsEdited = isEdited;
+            TextMessage = text;
             IsDeleted = isDeleted;
         }
 
@@ -43,9 +41,9 @@ namespace SecureChatChatMicroService.Domain.Entities
         /// <summary>
         /// Ид пользователя
         /// </summary>
-        public Guid UserId { get; private set; }
+        public Guid ChatParticipantsId { get; private set; }
 
-        public virtual UserEntity User { get; private set; }
+        public virtual ChatParticipantsEntity ChatParticipant { get; private set; }
 
         /// <summary>
         /// Дата отправки
@@ -65,26 +63,15 @@ namespace SecureChatChatMicroService.Domain.Entities
         /// <summary>
         /// Текст сообщения
         /// </summary>
-        public string Content { get; private set; }
-
-        /// <summary>
-        /// Тип (сообщение, картинка)
-        /// </summary>
-        public Guid TypeOfMessage { get; private set; }
-
-        /// <summary>
-        /// Было ли изменено
-        /// </summary>
-        public bool IsEdited { get; private set; }
+        public string TextMessage { get; private set; }
 
         /// <summary>
         /// Было ли удалено
         /// </summary>
         public bool IsDeleted { get; private set; }
 
-        public void MarkAsEdited(Instant updateTime)
+        /*public void MarkAsEdited(Instant updateTime)
         {
-            IsEdited = true;
             UpdateTime = updateTime;
         }
 
@@ -92,16 +79,16 @@ namespace SecureChatChatMicroService.Domain.Entities
         {
             IsDeleted = true;
             DeleteTime = deleteTime;
-        }
+        }*/
 
-        public void SetAnswerMessage(Guid? answerMessageId)
+        /*public void SetAnswerMessage(Guid? answerMessageId)
         {
             AnswerMessageId = answerMessageId;
-        }
+        }*/
 
-        public void Update(string? content)
+        /*public void Update(string? content)
         {
             Content = content ?? Content;
-        }
+        }*/
     }
 }

@@ -1,104 +1,99 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-import "google/api/annotations.proto";
-import "Common/chat_microservice_commons.proto";
-
+import "google/protobuf/empty.proto";
 option csharp_namespace = "ChatService.Proto";
 
-// 
+// Grpc сервис чата
 service ChatGrpcService {
-  rpc CreateChat(CreateChatRequest) returns (CreateChatResponse) {
-    option (google.api.http) = {
-      post: "/grpc/chat/add"
-      body: "*"
-    };
-  }
-  rpc GetChats(GetChatsRequest) returns (GetChatsResponse) {
-    option (google.api.http) = {get: "/grpc/chats"};
-  }
-  rpc GetChat(GetChatRequest) returns (GetChatResponse) {
-    option (google.api.http) = {get: "/grpc/chat/{Id}"};
-  }
-  rpc UpdateChat(UpdateChatRequest) returns (UpdateChatResponse) {
-    option (google.api.http) = {
-      put: "/grpc/chat/{Id}"
-      body: "*"
-    };
-  }
-  rpc DeleteChat(DeleteChatRequest) returns (DeleteChatResponse) {
-    option (google.api.http) = {delete: "/grpc/chat/{Id}"};
-  }
+  // Создание нового чата
+  rpc CreateChat(CreateChatRequest) returns (ChatResponse);
+
+  // Получение списка чатов пользователя
+  rpc GetUserChats(GetUserChatsRequest) returns (ChatsListResponse);
+
+  // Получение истории сообщений чата
+  rpc GetMessages(GetMessagesRequest) returns (MessagesListResponse);
+
+  // Получение информации о чате
+  rpc GetChatInfo(GetChatInfoRequest) returns (ChatResponse);
+
+  // отправка сообщения
+  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+
+  // добавление пользователя из сервиса Users
+  rpc AddUser(AddUserRequest) returns (AddUserResponse);
+  
+  // признак удаления пользователя из сервиса Users
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse);
 }
 
-/*REQUEST*/
-// 
-message GetChatsRequest{}
-
-// 
-message GetChatRequest{
-  string Id = 1;
+message CreateChatRequest {
+  repeated string participant_ids = 1;
+  string created_by = 2;
 }
 
-// 
-message CreateChatRequest{
-  // 
-  string Type = 1;
-  string OwnerId = 2;
-  string ChatGroupId = 3;
+message GetUserChatsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
 }
 
-// 
-message UpdateChatRequest{
-  string Id = 1;
-  optional google.protobuf.Timestamp LastMessageTime = 2;
-  optional int32 CountUnreadMessages = 3;
-  optional bool IsPint = 4;
-  optional bool IsMute = 5;
-  optional string Type = 6;
-  optional string GroupId = 7;
+message GetMessagesRequest {
+  string chat_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
 }
 
-// 
-message DeleteChatRequest{
-  string Id = 1;
+message GetChatInfoRequest {
+  string chat_id = 1;
 }
 
-/*RESPONSE*/
-// 
-message GetChatsResponse {
-  // 
-  bool Success = 1;
-  // 
-  repeated common.ChatInfo Chats = 2;
+message SendMessageRequest {
+  string chat_id = 1;
+  string chat_participant_id = 2;
+  string answer_message_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp send_time = 5;
 }
 
-// 
-message GetChatResponse {
-  // 
-  bool Success = 1;
-  // 
-  common.ChatInfo Chats = 2;
+message AddUserRequest {
+  string user_id = 1;
 }
 
-// 
-message CreateChatResponse {
-  // 
-  bool Success = 1;
-  // 
-  string Id = 2;
+message RemoveUserRequest {
+  string user_id = 1;
 }
 
-// 
-message UpdateChatResponse {
-  // 
-  bool Success = 1;
-  // 
-  common.ChatInfo UpdateChat = 2;
+message ChatResponse {
+  string id = 1;
+  repeated string participant_ids = 2;
+  optional string last_message = 3;
+  optional google.protobuf.Timestamp last_message_at = 4;
 }
 
-// 
-message DeleteChatResponse {
-  // 
-  bool Success = 1;
+message ChatsListResponse {
+  repeated ChatResponse chats = 1;
+  int32 total = 2;
+}
+
+message Message {
+  string id = 1;
+  string chat_id = 2;
+  string chat_participant_id = 3;
+  string text = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message MessagesListResponse {
+  repeated Message messages = 1;
+  int32 total = 2;
+}
+
+message AddUserResponse {
+  bool success = 1;
+}
+
+message RemoveUserResponse {
+  bool success = 1;
 }
