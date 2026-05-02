@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using SecureChatChatMicroService.Application.Extensions;
 using SecureChatChatMicroService.Infrastructure.Extensions;
@@ -12,15 +13,22 @@ builder.Services.AddGrpc(options =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(5555, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http2;
-    });
+    options.Listen(
+        IPAddress.Any,
+        5576,
+        listenOptions =>
+        {
+            listenOptions.Protocols = HttpProtocols.Http2;
+        });
 
-    options.ListenLocalhost(5277, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-    });
+    // HTTP endpoint — порт 4127 (для Swagger, Health, REST)
+    options.Listen(
+        IPAddress.Any,
+        4127,
+        listenOptions =>
+        {
+            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+        });
 });
 
 builder.Services
@@ -63,7 +71,15 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.MapGet("/health", () => Results.Ok(new 
+{ 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    service = "ChatChatService"
+}));
+
 // Регистрация gRPC-сервисов
 app.MapGrpcService<ChatGrpcService>().EnableGrpcWeb();
+app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client...");
 
 app.Run();
