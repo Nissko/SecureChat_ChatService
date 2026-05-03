@@ -4,7 +4,7 @@ namespace Requests.Message
 {
     public record SendMessageRequest(
         Guid ChatId,
-        Guid ChatParticipantId,
+        Guid UserId,
         Guid? AnswerMessageId,
         string Text,
         Instant SendTime);

@@ -12,6 +12,7 @@ namespace SecureChatChatMicroService.Domain.Entities
         {
             Groups = new HashSet<GroupEntity>();
             ChatParticipants = new HashSet<ChatParticipantsEntity>();
+            Messages = new HashSet<MessageEntity>();
         }
 
         public UserEntity(Guid userId, Instant? deletedAt) : this()
@@ -32,6 +33,7 @@ namespace SecureChatChatMicroService.Domain.Entities
 
         public virtual ICollection<GroupEntity> Groups { get; private set; }
         public virtual ICollection<ChatParticipantsEntity> ChatParticipants { get; private set; }
+        public virtual ICollection<MessageEntity> Messages { get; private set; }
 
 
         public void Update(Instant? deletedAt)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using SecureChatChatMicroService.Infrastructure;
 namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ChatServiceDbContext))]
-    partial class ChatServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503081625_ChatMicroService_Migration_0.0.3")]
+    partial class ChatMicroService_Migration_003
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

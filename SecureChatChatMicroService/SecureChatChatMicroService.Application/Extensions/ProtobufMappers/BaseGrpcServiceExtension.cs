@@ -30,19 +30,20 @@ namespace SecureChatChatMicroService.Application.Extensions.ProtobufMappers
             return new()
             {
                 Id = dto.Id.ToString(),
-                ChatId =  dto.ChatId.ToString(),
+                ChatId = dto.ChatId.ToString(),
                 ChatParticipantId = dto.ChatParticipantId.ToString(),
-                Text =  dto.TextMessage,
-                Timestamp = dto.Timestamp.ToTimestamp()
+                TextMessage = dto.TextMessage,
+                Timestamp = dto.Timestamp.ToTimestamp(),
+                AnswerMessageId = dto.AnswerMessageId.ToString()
             };
         }
-        
+
         public static List<Message> ToProtoChatMessagesInfoList(
             this List<MessageDto> dtos)
         {
             return dtos.Select(ToProtoChatMessagesInfo).ToList();
         }
-        
+
         #endregion
     }
 }

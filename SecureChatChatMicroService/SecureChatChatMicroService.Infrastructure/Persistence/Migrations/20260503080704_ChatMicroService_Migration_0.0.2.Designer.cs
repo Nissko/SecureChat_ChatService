@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using SecureChatChatMicroService.Infrastructure;
 namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ChatServiceDbContext))]
-    partial class ChatServiceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503080704_ChatMicroService_Migration_0.0.2")]
+    partial class ChatMicroService_Migration_002
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,7 +308,7 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("SecureChatChatMicroService.Domain.Entities.UserEntity", "User")
+                    b.HasOne("SecureChatChatMicroService.Domain.Entities.ChatParticipantsEntity", "ChatParticipant")
                         .WithMany("Messages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -315,7 +318,7 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("Chat");
 
-                    b.Navigation("User");
+                    b.Navigation("ChatParticipant");
                 });
 
             modelBuilder.Entity("SecureChatChatMicroService.Domain.Entities.ChatEntity", b =>
@@ -324,6 +327,11 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
 
                     b.Navigation("ChatParticipants");
 
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("SecureChatChatMicroService.Domain.Entities.ChatParticipantsEntity", b =>
+                {
                     b.Navigation("Messages");
                 });
 
@@ -342,8 +350,6 @@ namespace SecureChatChatMicroService.Infrastructure.Persistence.Migrations
                     b.Navigation("ChatParticipants");
 
                     b.Navigation("Groups");
-
-                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

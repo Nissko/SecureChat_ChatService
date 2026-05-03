@@ -10,12 +10,12 @@ namespace SecureChatChatMicroService.Domain.Entities
             RepliesMessage = new HashSet<MessageEntity>();
         }
 
-        public MessageEntity(Guid? answerMessageId, Guid chatId, Guid chatParticipantsId, Instant sendTime,
+        public MessageEntity(Guid? answerMessageId, Guid chatId, Guid userId, Instant sendTime,
             Instant? updateTime, Instant? deleteTime, string text, bool isDeleted = false)
         {
             AnswerMessageId = answerMessageId;
             ChatId = chatId;
-            ChatParticipantsId = chatParticipantsId;
+            UserId = userId;
             SendTime = sendTime;
             UpdateTime = updateTime;
             DeleteTime = deleteTime;
@@ -41,9 +41,9 @@ namespace SecureChatChatMicroService.Domain.Entities
         /// <summary>
         /// Ид пользователя
         /// </summary>
-        public Guid ChatParticipantsId { get; private set; }
+        public Guid UserId { get; private set; }
 
-        public virtual ChatParticipantsEntity ChatParticipant { get; private set; }
+        public virtual UserEntity User { get; private set; }
 
         /// <summary>
         /// Дата отправки

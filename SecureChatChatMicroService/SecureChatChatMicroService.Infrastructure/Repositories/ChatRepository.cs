@@ -121,13 +121,15 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             try
             {
                 var chatParticipant = _context.ChatParticipants
-                                          .FirstOrDefault(x => x.UserId == sendMessageRequest.ChatParticipantId) ??
-                                      throw new NullReferenceException("Chat participant not found");
+                                          .FirstOrDefault(x =>
+                                              x.UserId == sendMessageRequest.UserId &&
+                                              x.ChatId == sendMessageRequest.ChatId) ??
+                                      throw new NullReferenceException("Chat participant not found in chat");
                 var answerMessageId = sendMessageRequest.AnswerMessageId == Guid.Empty
                     ? null
                     : sendMessageRequest.AnswerMessageId;
                 var newMessage = new MessageEntity(answerMessageId, sendMessageRequest.ChatId,
-                    chatParticipant.Id, SystemClock.Instance.GetCurrentInstant(), null, null,
+                    chatParticipant.UserId, SystemClock.Instance.GetCurrentInstant(), null, null,
                     sendMessageRequest.Text);
                 
                 _context.Message.Add(newMessage);
@@ -169,7 +171,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             return new(
                 e.Id,
                 e.ChatId,
-                e.ChatParticipantsId,
+                e.UserId,
+                e.AnswerMessageId ?? null,
                 e.TextMessage,
                 e.SendTime
             );
@@ -180,7 +183,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             return en.Select(e => new MessageDto(
                 e.Id,
                 e.ChatId,
-                e.ChatParticipantsId,
+                e.UserId,
+                e.AnswerMessageId ?? null,
                 e.TextMessage,
                 e.SendTime
             )).ToList();

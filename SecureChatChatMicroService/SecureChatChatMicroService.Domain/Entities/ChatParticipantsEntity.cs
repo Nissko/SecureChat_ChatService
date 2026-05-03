@@ -5,13 +5,8 @@ namespace SecureChatChatMicroService.Domain.Entities
 {
     public class ChatParticipantsEntity : Entity
     {
-        public ChatParticipantsEntity()
-        {
-            Messages = new HashSet<MessageEntity>();
-        }
-
         public ChatParticipantsEntity(Instant enterTime, Instant? exitTime, Guid chatId, Guid userId,
-            bool isPint = false, bool isMuted = false) : this()
+            bool isPint = false, bool isMuted = false)
         {
             EnterTime = enterTime;
             ExitTime = exitTime;
@@ -31,8 +26,6 @@ namespace SecureChatChatMicroService.Domain.Entities
 
         public Guid UserId { get; private set; }
         public virtual UserEntity User { get; private set; }
-
-        public virtual ICollection<MessageEntity> Messages { get; private set; }
 
         public void Update(Instant? exitTime, bool? isPint, bool? isMuted)
         {

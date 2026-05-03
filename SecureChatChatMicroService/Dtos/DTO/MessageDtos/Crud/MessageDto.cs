@@ -6,6 +6,7 @@ namespace Dtos.DTO.MessageDtos.Crud
         Guid Id,
         Guid ChatId,
         Guid ChatParticipantId,
+        Guid? AnswerMessageId,
         string TextMessage,
         Instant Timestamp);
 }

@@ -81,8 +81,9 @@ message Message {
   string id = 1;
   string chat_id = 2;
   string chat_participant_id = 3;
-  string text = 4;
+  string text_message = 4;
   google.protobuf.Timestamp timestamp = 5;
+  optional string answer_message_id = 6;
 }
 
 message MessagesListResponse {

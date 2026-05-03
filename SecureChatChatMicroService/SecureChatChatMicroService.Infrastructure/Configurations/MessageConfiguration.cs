@@ -34,9 +34,9 @@ namespace SecureChatChatMicroService.Infrastructure.Configurations
                 .IsRequired()
                 .HasComment("Текст сообщения");
 
-            builder.HasOne(x => x.ChatParticipant)
+            builder.HasOne(x => x.User)
                 .WithMany(x => x.Messages)
-                .HasForeignKey(x => x.ChatParticipantsId)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder.HasOne(x => x.Chat)
