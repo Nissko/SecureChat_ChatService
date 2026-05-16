@@ -4,6 +4,7 @@ using SecureChatChatMicroService.Application.Extensions;
 using SecureChatChatMicroService.Infrastructure.Extensions;
 using ChatGrpcService = SecureChatChatMicroService.Application.GrpcServices.ChatGrpcService;
 
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddGrpc(options =>
     {
@@ -75,6 +76,7 @@ app.MapGet("/health", () => Results.Ok(new
 { 
     status = "healthy", 
     timestamp = DateTime.UtcNow,
+    timeLocal = DateTime.UtcNow.ToLocalTime(),
     service = "ChatChatService"
 }));
 

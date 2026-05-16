@@ -26,6 +26,12 @@ service ChatGrpcService {
   
   // признак удаления пользователя из сервиса Users
   rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse);
+
+  // Подписка на обновления чата в реальном времени
+  rpc StreamChatMessages(stream ChatMessageRequest) returns (stream ChatMessageEvent);
+  
+  // отправка сообщения в реальном времени
+  rpc SendMessageStream(SendMessageRequest) returns (Message);
 }
 
 message CreateChatRequest {
@@ -97,4 +103,43 @@ message AddUserResponse {
 
 message RemoveUserResponse {
   bool success = 1;
+}
+
+message ChatMessageRequest {
+  oneof action {
+    SubscribeRequest subscribe = 1;
+    SendMessageRequest send_message = 2;
+    //TODO: надо или нет
+    UnsubscribeRequest unsubscribe = 3;
+  }
+}
+
+message SubscribeRequest {
+  string chat_id = 1;
+  string user_id = 2;
+}
+
+message UnsubscribeRequest {
+  string chat_id = 1;
+}
+
+message ChatMessageEvent {
+  oneof event {
+    Message new_message = 1;
+    // Пользователь добавлен/удалён в чат (под каналы, группы)
+    UserStatusChange user_changed = 2;
+    ErrorInfo error = 3;
+  }
+}
+
+message UserStatusChange {
+  string chat_id = 1;
+  string user_id = 2;
+  bool is_added = 3;
+  google.protobuf.Timestamp changed_at = 4;
+}
+
+message ErrorInfo {
+  string code = 1;
+  string message = 2;
 }

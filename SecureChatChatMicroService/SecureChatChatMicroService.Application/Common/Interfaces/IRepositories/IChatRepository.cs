@@ -28,6 +28,14 @@ namespace SecureChatChatMicroService.Application.Common.Interfaces.IRepositories
         /// </summary>
         Task<ChatDto> GetChatInfo(GetChatInfoRequest getChatInfoRequest);
 
+        /// <summary>
+        /// Создание нового сообщения
+        /// </summary>
         Task SendMessage(SendMessageRequest sendMessageRequest);
+        
+        /// <summary>
+        /// Для отправки сообщений в реальном времени
+        /// </summary>
+        Task<MessageDto> SendMessageStream(SendMessageRequest sendMessageRequest);
     }
 }

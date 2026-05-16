@@ -33,5 +33,10 @@ namespace SecureChatChatMicroService.Domain.Entities
             IsDeleted = isDeleted ?? IsDeleted;
             Type = type ?? Type;
         }
+
+        public void UpdateLastMessageTime(Instant? lastMessageTime)
+        {
+            LastMessageTime = lastMessageTime ?? LastMessageTime;
+        }
     }
 }

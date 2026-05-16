@@ -4,6 +4,7 @@ using Grpc.Core;
 using SecureChatChatMicroService.Application.Common.Interfaces.IRepositories;
 using SecureChatChatMicroService.Application.Extensions;
 using SecureChatChatMicroService.Application.Extensions.ProtobufMappers;
+using SecureChatChatMicroService.Application.Extensions.ProtoManagers;
 
 namespace SecureChatChatMicroService.Application.GrpcServices
 {
@@ -121,6 +122,30 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             }
         }
 
+        public override async Task<Message> SendMessageStream(SendMessageRequest request, ServerCallContext context)
+        {
+            try
+            {
+                var message = await _chatRepository.SendMessageStream(new Requests.Message.SendMessageRequest(
+                    request.ChatId.ToGuid(), request.ChatParticipantId.ToGuid(), request.AnswerMessageId.ToGuid(),
+                    request.Text, request.SendTime.ToInstant()));
+
+                return new Message
+                {
+                    Id = message.Id.ToString(),
+                    AnswerMessageId = message.AnswerMessageId.ToString(),
+                    ChatId = message.ChatId.ToString(),
+                    ChatParticipantId = message.ChatParticipantId.ToString(),
+                    TextMessage = message.TextMessage,
+                    Timestamp = message.Timestamp.ToTimestamp()
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new(StatusCode.Aborted, ex.Message));
+            }
+        }
+
         public override async Task<AddUserResponse> AddUser(AddUserRequest request, ServerCallContext context)
         {
             try
@@ -150,6 +175,50 @@ namespace SecureChatChatMicroService.Application.GrpcServices
             catch (Exception ex)
             {
                 throw new RpcException(new(StatusCode.Aborted, ex.Message));
+            }
+        }
+        
+        public override async Task StreamChatMessages(
+            IAsyncStreamReader<ChatMessageRequest> requestStream,
+            IServerStreamWriter<ChatMessageEvent> responseStream,
+            ServerCallContext context)
+        {
+            string? subscribedChatId = null;
+            string? userId = null;
+
+            // Хранение активных подключений (если надо)
+            var connectionId = Guid.NewGuid().ToString();
+    
+            try
+            {
+                await foreach (var request in requestStream.ReadAllAsync(context.CancellationToken))
+                {
+                    switch (request.ActionCase)
+                    {
+                        case ChatMessageRequest.ActionOneofCase.Subscribe:
+                            subscribedChatId = request.Subscribe.ChatId;
+                            userId = request.Subscribe.UserId;
+                            ChatConnectionManager.Instance.Subscribe(connectionId, subscribedChatId, responseStream);
+                            break;
+                    
+                        case ChatMessageRequest.ActionOneofCase.SendMessage:
+                            var newMessage = await SendMessageStream(request.SendMessage, context);
+
+                            await ChatConnectionManager.Instance.BroadcastAsync(
+                                request.SendMessage.ChatId,
+                                new ChatMessageEvent { NewMessage = newMessage });
+                            break;
+                    
+                        case ChatMessageRequest.ActionOneofCase.Unsubscribe:
+                            ChatConnectionManager.Instance.Unsubscribe(connectionId, request.Unsubscribe.ChatId);
+                            return;
+                    }
+                }
+            }
+            finally
+            {
+                if (subscribedChatId != null)
+                    ChatConnectionManager.Instance.Unsubscribe(connectionId, subscribedChatId);
             }
         }
     }

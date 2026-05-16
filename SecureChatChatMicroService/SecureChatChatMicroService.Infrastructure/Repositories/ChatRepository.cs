@@ -7,6 +7,7 @@ using Requests.Chat;
 using Requests.Message;
 using SecureChatChatMicroService.Application.Common.Interfaces;
 using SecureChatChatMicroService.Application.Common.Interfaces.IRepositories;
+using SecureChatChatMicroService.Application.Extensions;
 using SecureChatChatMicroService.Domain.Entities;
 using SecureChatChatMicroService.Domain.Enums;
 
@@ -61,15 +62,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
             {
                 var chatParticipants = await _context.ChatParticipants
                     .Where(x => x.UserId == getUserChatsRequest.UserId)
-                    .OrderByDescending(x => x.EnterTime)
                     .Skip(getUserChatsRequest.Offset)
                     .Take(getUserChatsRequest.Limit)
-                    .Include(x => x.Chat)
-                    .ThenInclude(c => c.Messages)
-                    .Include(x => x.Chat)
-                    .ThenInclude(c => c.ChatParticipants)
-                    .Include(x => x.Chat)
-                    .ThenInclude(c => c.ChatGroups)
                     .ToListAsync();
                 var chats = chatParticipants.Select(x => x.Chat).ToList();
 
@@ -120,6 +114,19 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             try
             {
+                await SendMessageStream(new SendMessageRequest(sendMessageRequest.ChatId, sendMessageRequest.UserId,
+                    sendMessageRequest.AnswerMessageId, sendMessageRequest.Text, sendMessageRequest.SendTime));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<MessageDto> SendMessageStream(SendMessageRequest sendMessageRequest)
+        {
+            try
+            {
                 var chatParticipant = _context.ChatParticipants
                                           .FirstOrDefault(x =>
                                               x.UserId == sendMessageRequest.UserId &&
@@ -131,9 +138,15 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
                 var newMessage = new MessageEntity(answerMessageId, sendMessageRequest.ChatId,
                     chatParticipant.UserId, SystemClock.Instance.GetCurrentInstant(), null, null,
                     sendMessageRequest.Text);
-                
+
+                var chat = chatParticipant.Chat;
+                chat.UpdateLastMessageTime(newMessage.SendTime);
+
+                _context.Chat.Update(chat);
                 _context.Message.Add(newMessage);
                 await SaveChanges();
+
+                return GetMessageDto(newMessage);
             }
             catch (Exception ex)
             {
@@ -143,7 +156,9 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
 
         private static ChatDto GetChatDto(ChatEntity e)
         {
-            var lastMessage = e.Messages.LastOrDefault();
+            var messages = e.Messages.OrderBy(x => x.SendTime).ToList();
+            var lastMessage = messages.LastOrDefault();
+            
             return new(
                 e.Id,
                 e.ChatParticipants.Select(x => x.UserId).ToList(),
@@ -156,7 +171,8 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             return en.Select(e =>
             {
-                var lastMessage = e.Messages.LastOrDefault();
+                var messages = e.Messages.OrderBy(x => x.SendTime).ToList();
+                var lastMessage = messages.LastOrDefault();
                 return new ChatDto(
                     e.Id,
                     e.ChatParticipants.Select(x => x.UserId).ToList(),

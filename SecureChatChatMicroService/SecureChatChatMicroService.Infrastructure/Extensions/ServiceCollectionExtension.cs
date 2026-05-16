@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecureChatChatMicroService.Application.Common.Interfaces;
 using SecureChatChatMicroService.Application.Common.Interfaces.IRepositories;
 using SecureChatChatMicroService.Application.Extensions;
+using SecureChatChatMicroService.Application.Extensions.ProtoManagers;
 using SecureChatChatMicroService.Infrastructure.Repositories;
 
 namespace SecureChatChatMicroService.Infrastructure.Extensions
@@ -24,6 +25,7 @@ namespace SecureChatChatMicroService.Infrastructure.Extensions
 
             //TODO: Регистрация  Mediator(-a)
             
+            services.AddSingleton<ChatConnectionManager>();
             
             //TODO: Репозитории
             services.AddScoped<IUserRepository, UserRepository>();
