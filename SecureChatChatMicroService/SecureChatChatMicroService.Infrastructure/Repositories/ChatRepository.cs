@@ -158,7 +158,7 @@ namespace SecureChatChatMicroService.Infrastructure.Repositories
         {
             var messages = e.Messages.OrderBy(x => x.SendTime).ToList();
             var lastMessage = messages.LastOrDefault();
-            
+
             return new(
                 e.Id,
                 e.ChatParticipants.Select(x => x.UserId).ToList(),
